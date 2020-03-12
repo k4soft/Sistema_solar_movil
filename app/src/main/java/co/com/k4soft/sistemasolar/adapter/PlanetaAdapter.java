@@ -5,9 +5,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -15,7 +18,7 @@ import butterknife.ButterKnife;
 import co.com.k4soft.sistemasolar.R;
 import co.com.k4soft.sistemasolar.entity.Planeta;
 
-public class PlanetaAdapter  extends BaseAdapter {
+public class PlanetaAdapter  extends BaseAdapter implements Filterable {
 
     private final LayoutInflater inflater;
     private  List<Planeta> listaPlanetasOut;
@@ -31,6 +34,45 @@ public class PlanetaAdapter  extends BaseAdapter {
     @Override
     public int getCount() {
         return listaPlanetasOut.size();
+    }
+
+    @Override
+    public Filter getFilter() {
+
+        Filter filter = new Filter() {
+            @SuppressWarnings("unchecked")
+            @Override
+            protected void publishResults(CharSequence constraint, FilterResults results) {
+                listaPlanetasOut = (List<Planeta>) results.values;
+                notifyDataSetChanged();
+            }
+
+            @Override
+            protected FilterResults performFiltering(CharSequence constraint) {
+                FilterResults results = new FilterResults();
+                List<Planeta> FilteredArrList = new ArrayList<>();
+                if (listaPlanetasIn == null) {
+                    listaPlanetasIn = new ArrayList<>(listaPlanetasOut);
+                }
+                if (constraint == null || constraint.length() == 0) {
+                    results.count = listaPlanetasIn.size();
+                    results.values = listaPlanetasIn;
+                } else {
+
+                    constraint = constraint.toString().toLowerCase();
+                    for (int i = 0; i < listaPlanetasIn.size(); i++) {
+                        String data = listaPlanetasIn.get(i).getNombre();
+                        if (data.toLowerCase().contains(constraint.toString())) {
+                            FilteredArrList.add(listaPlanetasIn.get(i));
+                        }
+                    }
+                    results.count = FilteredArrList.size();
+                    results.values = FilteredArrList;
+                }
+                return results;
+            }
+        };
+        return filter;
     }
 
     @Override
